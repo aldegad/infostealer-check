@@ -1,3 +1,6 @@
 .DS_Store
 *.log
+*.rej
+*.orig
 infostealer-check-*/
+reports/

@@ -14,17 +14,17 @@ run_checks() {
         emit_finding "$MODULE_ID" "Non-standard screen recording TCC grants" "high" "$grants" "Review and revoke unexpected TCC grants for screen capture."
         findings=$((findings + 1))
     fi
-    log_hits=$(log show --last 24h --style compact --predicate 'process == "screencapture" OR eventMessage CONTAINS[c] "screencapture"' 2>/dev/null | head -20 || true)
-    if [ -n "$log_hits" ]; then
-        emit_finding "$MODULE_ID" "Recent screencapture CLI activity" "medium" "$log_hits" "Confirm whether screen capture commands were expected in the last 24 hours."
+    log_hits=$(log show --last 24h --style compact --predicate 'process == "screencapture"' 2>/dev/null | grep -oE 'screencapture\[[0-9]+' | sort -u | wc -l | tr -d ' ' || echo 0)
+    if [ "$log_hits" -gt 50 ] 2>/dev/null; then
+        emit_finding "$MODULE_ID" "Frequent screencapture CLI activity" "medium" "${log_hits} unique screencapture processes in last 24h" "Unusual volume of screen captures. Confirm whether this was expected."
         findings=$((findings + 1))
     fi
-    file_hits=$(find /tmp "$HOME/Library/Caches" -type f \( -iname '*.png' -o -iname '*.jpg' \) -mtime -1 2>/dev/null | head -20 || true)
+    file_hits=$(find /tmp "$HOME/Library/Caches" -type f \( -iname '*.png' -o -iname '*.jpg' \) -mtime -1 2>/dev/null | grep -vE '/(Adobe|Google|Mozilla|Microsoft|com\.apple\.)/' | head -20 || true)
     if [ -n "$file_hits" ]; then
         emit_finding "$MODULE_ID" "Recent image files in unexpected locations" "medium" "$file_hits" "Inspect cached or temporary screenshots for potential staging or OCR abuse."
         findings=$((findings + 1))
     fi
-    proc_hits=$({ ps auxww 2>/dev/null; lsof -nP 2>/dev/null; } | grep -iE 'CGWindowListCreateImage|SCScreenshotManager|ScreenCaptureKit|screencapture|screenshot|capture.*screen' | head -20 || true)
+    proc_hits=$({ ps auxww 2>/dev/null; lsof -nP 2>/dev/null; } | grep -iE 'CGWindowListCreateImage|SCScreenshotManager|screencapture|capture.*screen' | grep -vE '(Claude|Discord|Codex|Electron|Slack|Chrome|Firefox|Safari|Edge|Brave|Arc|Zoom|Teams|grep -iE|Screenshot\.app|\.loctable)' | head -20 || true)
     if [ -n "$proc_hits" ]; then
         emit_finding "$MODULE_ID" "Processes matching screen capture API heuristics" "medium" "$proc_hits" "Inspect the owning process for ScreenCaptureKit/CoreGraphics-based capture behavior."
         findings=$((findings + 1))
