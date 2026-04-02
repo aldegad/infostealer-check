@@ -1,0 +1,21 @@
+{
+  "lang": "ko",
+  "scan_started": "인포스틸러 검사를 시작합니다...",
+  "scan_complete": "검사가 완료되었습니다.",
+  "findings_summary": "발견 사항 요약",
+  "no_findings": "의심스러운 활동이 발견되지 않았습니다.",
+  "severity_critical": "심각",
+  "severity_high": "높음",
+  "severity_medium": "중간",
+  "severity_low": "낮음",
+  "severity_info": "정보",
+  "report_saved": "보고서가 저장되었습니다: ",
+  "module_running": "모듈 실행 중: ",
+  "module_complete": "모듈 완료: ",
+  "remediation": "권장 조치: ",
+  "evidence": "증거: ",
+  "technique": "MITRE 기법: ",
+  "total_modules": "실행된 모듈 수: ",
+  "total_findings": "총 발견 사항: ",
+  "clean": "정상"
+}

@@ -1,0 +1,87 @@
+{
+  "_comment": "Allowlist for known false positives. Processes and paths listed here will be excluded from detection.",
+  "allowed_processes": [
+    {
+      "name": "Google Chrome",
+      "reason": "Legitimate browser accessing its own credential stores"
+    },
+    {
+      "name": "Firefox",
+      "reason": "Legitimate browser"
+    },
+    {
+      "name": "Safari",
+      "reason": "Legitimate browser"
+    },
+    {
+      "name": "Microsoft Edge",
+      "reason": "Legitimate browser"
+    },
+    {
+      "name": "Brave Browser",
+      "reason": "Legitimate browser"
+    },
+    {
+      "name": "Arc",
+      "reason": "Legitimate browser"
+    },
+    {
+      "name": "1Password",
+      "reason": "Legitimate password manager"
+    },
+    {
+      "name": "Bitwarden",
+      "reason": "Legitimate password manager"
+    },
+    {
+      "name": "LastPass",
+      "reason": "Legitimate password manager"
+    },
+    {
+      "name": "Docker",
+      "reason": "Development tool"
+    },
+    {
+      "name": "Visual Studio Code",
+      "reason": "IDE"
+    },
+    {
+      "name": "claude",
+      "reason": "AI development tool"
+    },
+    {
+      "name": "Slack",
+      "reason": "Legitimate messaging app"
+    },
+    {
+      "name": "Discord",
+      "reason": "Legitimate messaging app"
+    },
+    {
+      "name": "Telegram",
+      "reason": "Legitimate messaging app"
+    }
+  ],
+  "allowed_paths": [
+    {
+      "pattern": "/Applications/*.app",
+      "reason": "Standard application directory"
+    },
+    {
+      "pattern": "/usr/local/bin/*",
+      "reason": "Homebrew/system binaries"
+    }
+  ],
+  "allowed_extensions": [
+    {
+      "id": "nkbihfbeogaeaoehlefnkodbefgpgknn",
+      "name": "MetaMask",
+      "reason": "Legitimate crypto wallet extension"
+    },
+    {
+      "id": "bfnaelmomeimhlpmgjnjophhpkkoljpa",
+      "name": "Phantom",
+      "reason": "Legitimate crypto wallet extension"
+    }
+  ]
+}

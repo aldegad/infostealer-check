@@ -1,0 +1,30 @@
+name: Update IOC Signatures
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update process name signatures
+        run: ./scripts/update-process-names.sh signatures/process-names.json
+      - name: Update network IOC signatures
+        run: ./scripts/update-network-iocs.sh signatures/network-iocs.json
+      - name: Check for changes
+        id: diff
+        run: git diff --exit-code || echo "changed=true" >> "$GITHUB_OUTPUT"
+      - name: Create pull request
+        if: steps.diff.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          title: "chore: update IOC signatures [automated]"
+          commit-message: "chore: update IOC signatures [automated]"
+          branch: chore/update-ioc-signatures

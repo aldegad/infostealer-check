@@ -1,0 +1,21 @@
+{
+  "lang": "ja",
+  "scan_started": "インフォスティーラーのスキャンを開始します...",
+  "scan_complete": "スキャンが完了しました。",
+  "findings_summary": "検出結果の概要",
+  "no_findings": "不審な活動は検出されませんでした。",
+  "severity_critical": "重大",
+  "severity_high": "高",
+  "severity_medium": "中",
+  "severity_low": "低",
+  "severity_info": "情報",
+  "report_saved": "レポートが保存されました: ",
+  "module_running": "モジュール実行中: ",
+  "module_complete": "モジュール完了: ",
+  "remediation": "推奨対応: ",
+  "evidence": "証拠: ",
+  "technique": "MITRE テクニック: ",
+  "total_modules": "実行されたモジュール数: ",
+  "total_findings": "検出結果の合計: ",
+  "clean": "正常"
+}

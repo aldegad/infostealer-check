@@ -1,0 +1,75 @@
+rules:
+  - id: suspicious-curl-pipe-bash
+    pattern-either:
+      - pattern-regex: '(?i)\bcurl\b[^\n|]*\|\s*(bash|sh)\b'
+      - pattern-regex: '(?i)\bwget\b[^\n|]*\|\s*(bash|sh)\b'
+    message: >-
+      Remote content piped directly into a shell can execute attacker-controlled
+      code and is a common infostealer delivery pattern.
+    severity: ERROR
+    languages: [bash, sh]
+    metadata:
+      mitre_technique: T1059.004
+      confidence: HIGH
+
+  - id: hardcoded-webhook-url
+    pattern-either:
+      - pattern-regex: 'discord\.com/api/webhooks'
+      - pattern-regex: 'api\.telegram\.org/bot'
+    message: >-
+      Hardcoded Discord webhook or Telegram bot URLs can be used to exfiltrate
+      stolen data to attacker-controlled services.
+    severity: WARNING
+    languages: [generic]
+    metadata:
+      mitre_technique: T1567.004
+      confidence: MEDIUM
+
+  - id: base64-decode-execute
+    pattern-regex: '(?i)\bbase64\b[^\n]*?(--decode|-d)[^\n]*\|\s*(bash|sh)\b'
+    message: >-
+      Decoding base64 content and piping it directly into a shell may conceal
+      and execute malicious payloads.
+    severity: ERROR
+    languages: [bash, sh]
+    metadata:
+      mitre_technique: T1059.004
+      confidence: HIGH
+
+  - id: credential-file-access
+    pattern-either:
+      - pattern-regex: '\.env\b'
+      - pattern-regex: '\.aws/credentials\b'
+      - pattern-regex: '\.ssh/id_rsa\b'
+    message: >-
+      Access to common credential file paths may indicate harvesting of
+      environment secrets, cloud credentials, or private keys.
+    severity: WARNING
+    languages: [generic]
+    metadata:
+      mitre_technique: T1552.001
+      confidence: MEDIUM
+
+  - id: osascript-password-prompt
+    pattern-regex: '(?i)\bosascript\b[^\n]*password'
+    message: >-
+      osascript usage involving password prompts may indicate macOS credential
+      phishing or deceptive password capture.
+    severity: ERROR
+    languages: [bash, sh]
+    metadata:
+      mitre_technique: T1059.002
+      confidence: HIGH
+
+  - id: browser-db-access
+    pattern-either:
+      - pattern-regex: 'Login Data'
+      - pattern-regex: '\bCookies\b'
+    message: >-
+      Access to browser Login Data or Cookies databases may indicate theft of
+      stored passwords or session tokens.
+    severity: ERROR
+    languages: [generic]
+    metadata:
+      mitre_technique: T1555.003
+      confidence: HIGH

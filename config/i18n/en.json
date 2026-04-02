@@ -1,0 +1,21 @@
+{
+  "lang": "en",
+  "scan_started": "Starting infostealer scan...",
+  "scan_complete": "Scan complete.",
+  "findings_summary": "Findings Summary",
+  "no_findings": "No suspicious activity detected.",
+  "severity_critical": "Critical",
+  "severity_high": "High",
+  "severity_medium": "Medium",
+  "severity_low": "Low",
+  "severity_info": "Info",
+  "report_saved": "Report saved: ",
+  "module_running": "Running module: ",
+  "module_complete": "Module complete: ",
+  "remediation": "Recommended action: ",
+  "evidence": "Evidence: ",
+  "technique": "MITRE technique: ",
+  "total_modules": "Modules executed: ",
+  "total_findings": "Total findings: ",
+  "clean": "Clean"
+}
