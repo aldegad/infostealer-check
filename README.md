@@ -14,8 +14,8 @@ Checks **10 categories** of common infostealer indicators:
 | 4 | Login items | Login Items list | Startup folder |
 | 5 | Recently installed apps | 7-day app changes + code signing | 7-day installs + signature verification |
 | 6 | Chrome extensions | high-risk permissions audit | high-risk permissions audit |
-| 7 | Network connections | suspicious ports + webhook comms | suspicious ports + webhook comms |
-| 8 | Chrome credential access | non-Chrome processes touching Login Data / Cookies DB | non-Chrome processes touching Login Data / Cookies DB |
+| 7 | Network connections | suspicious ports + webhook comms | suspicious ports + full connection export |
+| 8 | Chrome credential store metadata | non-Chrome processes touching Login Data / Cookies DB | Login Data / Cookies timestamps by Chrome profile |
 | 9 | Scheduled tasks | cron / periodic scripts | Scheduled Tasks + Defender threat history |
 | 10 | Privacy permissions | TCC database (Full Disk Access, Accessibility) | PowerShell command history |
 
