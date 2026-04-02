@@ -7,6 +7,11 @@ param([ValidateSet('text','json')][string]$Format = $(if ($env:OUTPUT_FORMAT) { 
 $Technique = 'T1555.003'
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $handleTimeoutSeconds = 5
+$trustedHandlePublishers = @(
+  'Microsoft Corporation',
+  'Microsoft Windows',
+  'Sysinternals'
+)
 
 function Emit($items) {
   if ($Format -eq 'json') { $items | ConvertTo-Json -Depth 4 -Compress; return }
@@ -18,8 +23,32 @@ function Emit($items) {
   }
 }
 
+function Test-TrustedHandleExecutable($Path) {
+  if (-not $Path -or -not (Test-Path $Path)) { return $false }
+
+  try {
+    $signature = Get-AuthenticodeSignature -FilePath $Path -ErrorAction Stop
+  } catch {
+    return $false
+  }
+
+  if ($signature.Status -ne 'Valid') { return $false }
+
+  $subject = @(
+    $signature.SignerCertificate.Subject
+    $signature.SignerCertificate.Issuer
+  ) -join ' '
+
+  foreach ($publisher in $trustedHandlePublishers) {
+    if ($subject -like "*$publisher*") {
+      return $true
+    }
+  }
+
+  return $false
+}
+
 function Resolve-HandleExecutable {
-  $expectedHash = 'EXPECTED_SHA256_HASH_HERE' # Update with the real Sysinternals Handle SHA256 before enabling auto-download.
   $candidate = @('handle64.exe', 'handle.exe') | ForEach-Object {
     $local = Join-Path $scriptDir $_
     if (Test-Path $local) {
@@ -27,9 +56,9 @@ function Resolve-HandleExecutable {
     } else {
       (Get-Command $_ -ErrorAction SilentlyContinue).Source
     }
-  } | Select-Object -First 1
+  } | Where-Object { $_ } | Select-Object -First 1
 
-  if ($candidate) { return $candidate }
+  if ($candidate -and (Test-TrustedHandleExecutable -Path $candidate)) { return $candidate }
   if ($env:INFOSTEALER_CHECK_DISABLE_HANDLE_DOWNLOAD -eq '1') { return $null }
 
   $toolRoot = Join-Path $env:LOCALAPPDATA 'infostealer-check\tools\handle'
@@ -40,7 +69,8 @@ function Resolve-HandleExecutable {
   )
 
   foreach ($path in $preferredPaths) {
-    if (Test-Path $path) { return $path }
+    if (Test-TrustedHandleExecutable -Path $path) { return $path }
+    if (Test-Path $path) { Remove-Item $path -Force -ErrorAction SilentlyContinue }
   }
 
   try {
@@ -55,15 +85,11 @@ function Resolve-HandleExecutable {
 
   foreach ($path in $preferredPaths) {
     if (Test-Path $path) {
-      $handlePath = $path
-      # Verify the downloaded executable to reduce supply chain risk before we trust and execute it.
-      $actualHash = (Get-FileHash -Path $handlePath -Algorithm SHA256).Hash
-      if ($actualHash -ne $expectedHash) {
-        Remove-Item $handlePath -Force -ErrorAction SilentlyContinue
-        throw "Downloaded Handle executable failed SHA256 verification. Update `$expectedHash with the real Sysinternals hash before enabling auto-download."
+      if (Test-TrustedHandleExecutable -Path $path) {
+        return $path
       }
 
-      return $handlePath
+      Remove-Item $path -Force -ErrorAction SilentlyContinue
     }
   }
 
@@ -112,7 +138,8 @@ $targets = @(
   "$env:LOCALAPPDATA\Google\Chrome\User Data\*\Login Data", "$env:LOCALAPPDATA\Google\Chrome\User Data\*\Cookies",
   "$env:APPDATA\Mozilla\Firefox\Profiles\*\logins.json", "$env:APPDATA\Mozilla\Firefox\Profiles\*\cookies.sqlite", "$env:APPDATA\Mozilla\Firefox\Profiles\*\key4.db",
   "$env:LOCALAPPDATA\Microsoft\Edge\User Data\*\Login Data", "$env:LOCALAPPDATA\Microsoft\Edge\User Data\*\Cookies",
-  "$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\User Data\*\Login Data", "$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\User Data\*\Cookies"
+  "$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\User Data\*\Login Data", "$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\User Data\*\Cookies",
+  "$env:APPDATA\Opera Software\Opera Stable\Login Data", "$env:APPDATA\Opera Software\Opera Stable\Cookies"
 )
 
 $findings = @()

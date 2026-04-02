@@ -56,3 +56,6 @@ jobs:
               exit 1
             }
           }
+      - name: Run Windows runtime smoke tests
+        shell: powershell
+        run: .\tests\run-windows-tests.ps1
