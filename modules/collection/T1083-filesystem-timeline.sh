@@ -23,12 +23,11 @@ run_checks() {
 
     # 2. Detect activity bursts: >10 files in same 5-minute window
     if [ "${#recent_files[@]}" -gt 0 ]; then
-        local -A wc=(); local mtime b peak=0 pk=""
-        for f in "${recent_files[@]}"; do
-            mtime=$(stat -f %m "$f" 2>/dev/null) || continue
-            b=$((mtime / 300)); wc[$b]=$(( ${wc[$b]:-0} + 1 ))
-            [ "${wc[$b]}" -gt "$peak" ] && { peak=${wc[$b]}; pk=$b; }
-        done
+        local burst_info
+        burst_info=$(for f in "${recent_files[@]}"; do
+            stat -f %m "$f" 2>/dev/null
+        done | awk '{b=int($1/300); c[b]++} END {peak=0; for(k in c) if(c[k]>peak){peak=c[k];pk=k} print peak,pk}')
+        local peak=${burst_info%% *} pk=${burst_info##* }
         if [ "$peak" -gt 10 ]; then
             local wts; wts=$(date -r $((pk * 300)) "+%Y-%m-%d %H:%M" 2>/dev/null)
             emit_finding "$MODULE_TECHNIQUE" "$MODULE_ID" "high" \
