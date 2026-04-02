@@ -16,7 +16,7 @@ Checks **10 categories** of common infostealer indicators:
 | 6 | Chrome extensions | high-risk permissions audit | high-risk permissions audit |
 | 7 | Network connections | suspicious ports + webhook comms | suspicious ports + full connection export |
 | 8 | Chrome credential store metadata | non-Chrome processes touching Login Data / Cookies DB | Login Data / Cookies timestamps by Chrome profile |
-| 9 | Scheduled tasks | cron / periodic scripts | Scheduled Tasks + Defender threat history |
+| 9 | Scheduled tasks | cron / periodic scripts | Scheduled Tasks + Defender threat history/residue recheck |
 | 10 | Privacy permissions | TCC database (Full Disk Access, Accessibility) | PowerShell command history |
 
 ## What It Does NOT Do
@@ -94,6 +94,7 @@ The scripts check for indicators associated with:
 Some legitimate software may trigger warnings:
 
 - **Development tools** (Claude, Codex, Node.js) running from user directories
+- **Trusted high-privilege extensions** such as Chrome Remote Desktop or Claude from the Chrome Web Store
 - **Chrome Helper** processes accessing Chrome databases (expected behavior)
 - **Security software** (nProtect, etc.) registered as LaunchDaemons
 - **Discord/Slack** network connections (legitimate app usage)

@@ -29,6 +29,43 @@ function Sep()          { Log "-------------------------------------------------
 $foundIssues = 0
 $highConfidenceFindings = 0
 $warningFindings = 0
+$userWritableRoots = @(
+    $env:TEMP,
+    (Join-Path $env:LOCALAPPDATA "Temp"),
+    $env:APPDATA,
+    $env:LOCALAPPDATA,
+    (Join-Path $env:USERPROFILE "Downloads"),
+    (Join-Path $env:USERPROFILE "Desktop"),
+    "$env:SystemDrive\Users\Public",
+    $env:ProgramData
+)
+$trustedTaskPathPatterns = @(
+    '^C:\\Program Files( \(x86\))?\\Adobe\\',
+    '^C:\\Program Files( \(x86\))?\\Common Files\\Adobe\\',
+    '^C:\\Program Files( \(x86\))?\\AMD\\',
+    '^C:\\Program Files( \(x86\))?\\GIGABYTE\\',
+    '^C:\\Program Files( \(x86\))?\\Logitech\\',
+    '^C:\\Program Files( \(x86\))?\\Microsoft OneDrive\\',
+    '^C:\\Program Files( \(x86\))?\\NVIDIA Corporation\\',
+    '^C:\\Windows\\'
+)
+$trustedTaskAuthors = @(
+    'Adobe',
+    'Advanced Micro Devices',
+    'AMD',
+    'GIGABYTE',
+    'Logitech',
+    'Microsoft',
+    'NVIDIA'
+)
+$trustedExtensionIds = @{
+    "fcoeoabgfenejglbffodgkkbkcdhcgfn" = "Claude"
+    "inomeogfingihgjfjlpeplalcfajhgai" = "Chrome Remote Desktop"
+}
+$trustedExtensionUpdateUrls = @(
+    "https://clients2.google.com/service/update2/crx",
+    "https://edge.microsoft.com/extensionwebstorebase/v1/crx"
+)
 
 function Add-Issue {
     param([string]$Level, [string]$Message)
@@ -48,6 +85,100 @@ function Add-Issue {
             Info $Message
         }
     }
+}
+
+function Format-Preview {
+    param(
+        [string]$Text,
+        [int]$MaxLength = 140
+    )
+
+    if (-not $Text) {
+        return ""
+    }
+
+    $singleLine = ($Text -replace "\s+", " ").Trim()
+    if ($singleLine.Length -le $MaxLength) {
+        return $singleLine
+    }
+
+    return "$($singleLine.Substring(0, $MaxLength - 3))..."
+}
+
+function Resolve-ScanPath {
+    param([string]$Path)
+
+    if (-not $Path) {
+        return $null
+    }
+
+    return [Environment]::ExpandEnvironmentVariables($Path.Trim().Trim('"'))
+}
+
+function Test-UserWritablePath {
+    param([string]$Path)
+
+    $resolved = Resolve-ScanPath $Path
+    if (-not $resolved) {
+        return $false
+    }
+
+    foreach ($root in $userWritableRoots) {
+        $expandedRoot = Resolve-ScanPath $root
+        if ($expandedRoot -and $resolved.StartsWith($expandedRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
+            return $true
+        }
+    }
+
+    return $false
+}
+
+function Get-CommandExecutablePath {
+    param([string]$CommandLine)
+
+    if (-not $CommandLine) {
+        return $null
+    }
+
+    if ($CommandLine -match '(?i)"([^"]+\.(exe|cmd|bat|ps1|vbs|js|msi))"') {
+        return Resolve-ScanPath $matches[1]
+    }
+
+    if ($CommandLine -match '(?i)^([^\s]+\.(exe|cmd|bat|ps1|vbs|js|msi))') {
+        return Resolve-ScanPath $matches[1]
+    }
+
+    return $null
+}
+
+function Test-TrustedSignedFile {
+    param([string]$Path)
+
+    $resolved = Resolve-ScanPath $Path
+    if (-not $resolved -or -not (Test-Path $resolved)) {
+        return $false
+    }
+
+    $signature = Get-AuthenticodeSignature $resolved
+    return $signature.Status -eq "Valid"
+}
+
+function Get-DetectionResourcePaths {
+    param([string]$Text)
+
+    $matches = New-Object System.Collections.Generic.List[string]
+    if (-not $Text) {
+        return @()
+    }
+
+    foreach ($match in [regex]::Matches($Text, '(?i)[A-Za-z]:\\[^"\r\n]+?\.(exe|dll|cmd|bat|ps1|msi|js|vbs|zip|rar|7z|tmp|dat|db|sqlite|json|lnk)')) {
+        $candidate = Resolve-ScanPath $match.Value
+        if ($candidate -and -not $matches.Contains($candidate)) {
+            [void]$matches.Add($candidate)
+        }
+    }
+
+    return $matches.ToArray()
 }
 
 Log ""
@@ -169,12 +300,48 @@ $tasks = Get-ScheduledTask | Where-Object {
 
 if ($tasks) {
     foreach ($task in $tasks) {
-        $actions = ($task.Actions | ForEach-Object { "$($_.Execute) $($_.Arguments)".Trim() }) -join "; "
-        if ($actions -match '(^|[\\/"\s])(powershell|pwsh|cmd|wscript|cscript|mshta|curl)(\.exe)?([\\/"\s]|$)' -or
-            $actions -match '\\Temp\\|\\AppData\\') {
-            Add-Issue "bad" "Suspicious scheduled task: $($task.TaskName) -> $actions"
-        } elseif ($actions) {
-            Info "Scheduled task: $($task.TaskName) -> $actions"
+        $actions = @($task.Actions | ForEach-Object { "$($_.Execute) $($_.Arguments)".Trim() } | Where-Object { $_ })
+        if (-not $actions) {
+            Info "Scheduled task without executable action: $($task.TaskName)"
+            continue
+        }
+
+        $taskActionText = $actions -join "; "
+        $executablePath = Get-CommandExecutablePath $taskActionText
+        $resolvedExecutable = Resolve-ScanPath $executablePath
+        $author = [string]$task.Author
+        $usesScriptEngine = $taskActionText -match '(^|[\\/"\s])(powershell|pwsh|cmd|wscript|cscript|mshta|curl|rundll32|regsvr32)(\.exe)?([\\/"\s]|$)'
+        $usesRemoteContent = $taskActionText -match 'https?://'
+        $usesEncodedPayload = $taskActionText -match '(?i)-enc(odedcommand)?\b|frombase64string|invoke-expression|\biex\b'
+        $runsFromUserWritablePath = (Test-UserWritablePath $resolvedExecutable) -or $taskActionText -match '\\Temp\\|\\AppData\\|\\Downloads\\|\\ProgramData\\'
+        $trustedPath = $false
+        foreach ($pattern in $trustedTaskPathPatterns) {
+            if ($resolvedExecutable -match $pattern) {
+                $trustedPath = $true
+                break
+            }
+        }
+        $trustedAuthor = $false
+        foreach ($pattern in $trustedTaskAuthors) {
+            if ($author -match $pattern) {
+                $trustedAuthor = $true
+                break
+            }
+        }
+        $trustedSignature = Test-TrustedSignedFile $resolvedExecutable
+
+        if ($usesScriptEngine -and ($usesRemoteContent -or $usesEncodedPayload -or $runsFromUserWritablePath)) {
+            Add-Issue "bad" "Suspicious scheduled task: $($task.TaskName) -> $taskActionText"
+        } elseif ($resolvedExecutable -and -not (Test-Path $resolvedExecutable) -and -not ($taskActionText -match '^%')) {
+            Add-Issue "warn" "Scheduled task references a missing executable: $($task.TaskName) -> $taskActionText"
+        } elseif ($runsFromUserWritablePath) {
+            Add-Issue "warn" "Scheduled task runs from a user-writable path: $($task.TaskName) -> $taskActionText"
+        } elseif ($usesScriptEngine -or $usesRemoteContent) {
+            Add-Issue "warn" "Script-driven scheduled task: $($task.TaskName) -> $taskActionText"
+        } elseif ($trustedPath -or $trustedAuthor -or $trustedSignature) {
+            Info "Trusted vendor scheduled task: $($task.TaskName) -> $taskActionText"
+        } else {
+            Info "Scheduled task: $($task.TaskName) -> $taskActionText"
         }
     }
 } else {
@@ -250,9 +417,19 @@ if (Test-Path $chromeProfilesRoot) {
                 $permissions = $permissions | Where-Object { $_ } | Select-Object -Unique
                 $extName = if ($json.name) { [string]$json.name } else { $extRoot.Name }
                 $hit = $permissions | Where-Object { $_ -in $riskyPermissions }
+                $storeUpdateUrl = [string]$json.update_url
+                $trustedStoreSource = $trustedExtensionUpdateUrls -contains $storeUpdateUrl
+                $trustedHighPrivilegeExtension = $trustedExtensionIds.ContainsKey($extRoot.Name)
+                $criticalPermissions = @($hit | Where-Object { $_ -in @("nativeMessaging", "<all_urls>", "cookies", "webRequest", "webRequestBlocking") })
 
                 if ($hit) {
-                    Add-Issue "warn" "Extension with high-risk permissions: $extName -> $($hit -join ', ')"
+                    if ($trustedHighPrivilegeExtension -and $trustedStoreSource) {
+                        Info "Trusted high-privilege extension: $extName ($($extRoot.Name)) -> $($hit -join ', ')"
+                    } elseif (-not $trustedStoreSource -and $criticalPermissions.Count -ge 2) {
+                        Add-Issue "bad" "Extension with high-risk permissions from an untrusted update source: $extName ($($extRoot.Name)) -> $($hit -join ', ')"
+                    } else {
+                        Add-Issue "warn" "Extension with high-risk permissions: $extName ($($extRoot.Name)) -> $($hit -join ', ')"
+                    }
                 }
             } catch {
                 Warn "Could not parse manifest: $($manifest.FullName)"
@@ -330,8 +507,59 @@ try {
     if ($threats) {
         foreach ($t in $threats) {
             $threatInfo = Get-MpThreat -ThreatID $t.ThreatID
-            Add-Issue "bad" "Defender detection: $($threatInfo.ThreatName) at $($t.InitialDetectionTime)"
-            Info "Threat status: $($t.CurrentThreatExecutionStatusName)"
+            $threatName = if ($threatInfo.ThreatName) { $threatInfo.ThreatName } else { "Unknown threat" }
+            $resources = @($t.Resources | ForEach-Object { [string]$_ } | Where-Object { $_ })
+            $resourceTypes = @()
+            $existingResourcePaths = New-Object System.Collections.Generic.List[string]
+            $resourcePreviews = New-Object System.Collections.Generic.List[string]
+
+            foreach ($resource in $resources) {
+                $resourceText = $resource.Trim()
+                $resourceParts = $resourceText.Split(':', 2)
+                if ($resourceParts.Count -eq 2 -and $resourceParts[0] -match '^[A-Za-z]+$') {
+                    $resourceType = $resourceParts[0]
+                    $resourceBody = $resourceParts[1].TrimStart('_')
+                } else {
+                    $resourceType = "Resource"
+                    $resourceBody = $resourceText
+                }
+
+                if ($resourceTypes -notcontains $resourceType) {
+                    $resourceTypes += $resourceType
+                }
+
+                if ($resourcePreviews.Count -lt 2) {
+                    [void]$resourcePreviews.Add("${resourceType}: $(Format-Preview $resourceBody)")
+                }
+
+                if ($resourceType -ne "CmdLine") {
+                    foreach ($candidatePath in Get-DetectionResourcePaths $resourceBody) {
+                        if ((Test-Path $candidatePath) -and (Test-UserWritablePath $candidatePath) -and -not $existingResourcePaths.Contains($candidatePath)) {
+                            [void]$existingResourcePaths.Add($candidatePath)
+                        }
+                    }
+                }
+            }
+
+            $remediationSucceeded = [bool]$t.ActionSuccess
+            if ($existingResourcePaths.Count -gt 0) {
+                Add-Issue "bad" "Defender detection with residual artifacts still present: $threatName at $($t.InitialDetectionTime)"
+                foreach ($path in $existingResourcePaths) {
+                    Warn "  Residual artifact: $path"
+                }
+            } elseif (-not $remediationSucceeded) {
+                Add-Issue "bad" "Defender detection without confirmed remediation: $threatName at $($t.InitialDetectionTime)"
+            } else {
+                Add-Issue "warn" "Historical Defender detection with no current file residue found: $threatName at $($t.InitialDetectionTime)"
+            }
+
+            $resourceTypeSummary = if ($resourceTypes) { $resourceTypes -join ", " } else { "none" }
+            Info "Threat resource types: $resourceTypeSummary"
+            foreach ($preview in $resourcePreviews) {
+                Info "  Resource preview: $preview"
+            }
+            Info "Remediation success: $remediationSucceeded"
+            Info "Remediation time: $($t.RemediationTime)"
         }
     } else {
         Good "No recent Windows Defender detections found"
@@ -393,7 +621,7 @@ if ($foundIssues -gt 0) {
     }
     Log "Recommended next steps:"
     Log "1. Run a reputable secondary scanner such as Microsoft Defender Offline or Malwarebytes."
-    Log "2. Review suspicious processes, startup entries, scheduled tasks, and flagged browser extensions."
+    Log "2. Review warning entries, Defender detections, recent downloads, and any user-writable persistence locations."
     Log "3. Rotate browser passwords and sign out of important web sessions if compromise is possible."
     Log "4. Review the generated report and network log with your security owner if this is a work machine."
 } else {
