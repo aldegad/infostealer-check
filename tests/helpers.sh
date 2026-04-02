@@ -4,10 +4,12 @@
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SANDBOX=""
 ORIGINAL_HOME="$HOME"
+ORIGINAL_PATH="$PATH"
 
 setup_sandbox() {
     SANDBOX=$(mktemp -d "${TMPDIR:-/tmp}/isc-test.XXXXXX")
     export HOME="$SANDBOX"
+    export PATH="$ORIGINAL_PATH"
     # Create standard macOS directory structure
     mkdir -p "$SANDBOX/Library/LaunchAgents"
     mkdir -p "$SANDBOX/Library/Application Support"
@@ -16,8 +18,14 @@ setup_sandbox() {
     mkdir -p "$SANDBOX/.ssh"
 }
 
+setup_mock_bin() {
+    mkdir -p "$SANDBOX/mockbin"
+    export PATH="$SANDBOX/mockbin:$ORIGINAL_PATH"
+}
+
 teardown_sandbox() {
     export HOME="$ORIGINAL_HOME"
+    export PATH="$ORIGINAL_PATH"
     [ -n "$SANDBOX" ] && rm -rf "$SANDBOX"
 }
 
@@ -34,10 +42,21 @@ assert_detected() {
 
 assert_clean() {
     local technique="$1" output="$2"
-    if echo "$output" | grep -qi "clean\|no.*found\|no.*detected"; then
+    if echo "$output" | grep -qi "\[OK\]\|clean\|no.*found\|no.*detected"; then
         return 0
     else
         echo "  FAIL: expected clean result"
+        return 1
+    fi
+}
+
+assert_contains() {
+    local needle="$1" output="$2"
+    if echo "$output" | grep -q "$needle"; then
+        return 0
+    else
+        echo "  FAIL: expected output to contain '$needle'"
+        echo "  OUTPUT: $(echo "$output" | head -5)"
         return 1
     fi
 }
