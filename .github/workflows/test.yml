@@ -32,15 +32,27 @@ jobs:
       - name: Parse Windows script in Windows PowerShell
         shell: powershell
         run: |
-          $scriptPath = Resolve-Path .\check-windows.ps1
-          $null = [System.Management.Automation.Language.Parser]::ParseFile(
-            $scriptPath,
-            [ref] $null,
-            [ref] $errors
+          $scriptPaths = @(
+            (Resolve-Path .\check-windows.ps1).Path
+            (Resolve-Path .\core\runner.ps1).Path
           )
-          if ($errors.Count -gt 0) {
-            $errors | ForEach-Object {
-              Write-Error ("{0}:{1} {2}" -f $_.Extent.StartLineNumber, $_.Extent.StartColumnNumber, $_.Message)
+
+          $scriptPaths += Get-ChildItem .\modules -Recurse -Filter *.ps1 | ForEach-Object {
+            $_.FullName
+          }
+
+          foreach ($scriptPath in $scriptPaths) {
+            $tokens = $null
+            $errors = $null
+            $null = [System.Management.Automation.Language.Parser]::ParseFile(
+              $scriptPath,
+              [ref] $tokens,
+              [ref] $errors
+            )
+            if ($errors.Count -gt 0) {
+              $errors | ForEach-Object {
+                Write-Error ("{0}:{1}:{2} {3}" -f $scriptPath, $_.Extent.StartLineNumber, $_.Extent.StartColumnNumber, $_.Message)
+              }
+              exit 1
             }
-            exit 1
           }

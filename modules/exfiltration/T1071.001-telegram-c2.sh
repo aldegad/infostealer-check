@@ -23,7 +23,8 @@ run_checks() {
     tg_numeric_hits=$(printf "%s\n" "$lsof_numeric" | grep -viE 'Telegram($| )' | grep -E '149\.154\.|91\.108\.' || true)
     tg_host_hits=$(printf "%s\n" "$lsof_host" | grep -viE 'Telegram($| )' | grep -iE 'api\.telegram\.org|telegram\.me|t\.me' || true)
     if [ -n "$tg_numeric_hits$tg_host_hits" ]; then
-        emit_finding "$MODULE_TECHNIQUE" "Non-Telegram process connecting to Telegram infrastructure" "high" \
+        emit_finding "$MODULE_ID" "$MODULE_TECHNIQUE" "high" \
+            "Non-Telegram process connecting to Telegram infrastructure" \
             "$(printf "%s\n%s\n" "$tg_numeric_hits" "$tg_host_hits" | sed '/^[[:space:]]*$/d' | sort -u)" \
             "Investigate and kill the process if unauthorized."
         findings=$((findings + 1))
@@ -31,7 +32,8 @@ run_checks() {
 
     dns_hits=$(log show --predicate 'eventMessage CONTAINS[c] "telegram"' --style compact --last 1h 2>/dev/null | head -10 || true)
     if [ -n "$dns_hits" ]; then
-        emit_finding "$MODULE_TECHNIQUE" "Unexpected Telegram DNS or log activity" "medium" \
+        emit_finding "$MODULE_ID" "$MODULE_TECHNIQUE" "medium" \
+            "Unexpected Telegram DNS or log activity" \
             "$dns_hits" \
             "Review which processes are resolving Telegram domains."
         findings=$((findings + 1))
@@ -46,7 +48,8 @@ run_checks() {
     done
     token_hits=$(printf "%s" "$token_hits" | sed '/^[[:space:]]*$/d')
     if [ -n "$token_hits" ]; then
-        emit_finding "$MODULE_TECHNIQUE" "Telegram bot token pattern on disk" "high" \
+        emit_finding "$MODULE_ID" "$MODULE_TECHNIQUE" "high" \
+            "Telegram bot token pattern on disk" \
             "$token_hits" \
             "Remove files and rotate exposed bot tokens."
         findings=$((findings + 1))
@@ -60,7 +63,8 @@ run_checks() {
     done
     history_hits=$(printf "%s" "$history_hits" | sed '/^[[:space:]]*$/d')
     if [ -n "$history_hits" ]; then
-        emit_finding "$MODULE_TECHNIQUE" "Shell history references Telegram API" "medium" \
+        emit_finding "$MODULE_ID" "$MODULE_TECHNIQUE" "medium" \
+            "Shell history references Telegram API" \
             "$history_hits" \
             "Review history for unauthorized exfiltration commands."
         findings=$((findings + 1))

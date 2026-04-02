@@ -19,6 +19,7 @@ function Emit($items) {
 }
 
 function Resolve-HandleExecutable {
+  $expectedHash = 'EXPECTED_SHA256_HASH_HERE' # Update with the real Sysinternals Handle SHA256 before enabling auto-download.
   $candidate = @('handle64.exe', 'handle.exe') | ForEach-Object {
     $local = Join-Path $scriptDir $_
     if (Test-Path $local) {
@@ -32,7 +33,7 @@ function Resolve-HandleExecutable {
   if ($env:INFOSTEALER_CHECK_DISABLE_HANDLE_DOWNLOAD -eq '1') { return $null }
 
   $toolRoot = Join-Path $env:LOCALAPPDATA 'infostealer-check\tools\handle'
-  $zipPath = Join-Path $toolRoot 'Handle.zip'
+  $tempZipPath = Join-Path $env:TEMP ("handle-{0}.zip" -f ([guid]::NewGuid().ToString('N')))
   $preferredPaths = @(
     (Join-Path $toolRoot 'handle64.exe'),
     (Join-Path $toolRoot 'handle.exe')
@@ -44,14 +45,26 @@ function Resolve-HandleExecutable {
 
   try {
     New-Item -ItemType Directory -Path $toolRoot -Force | Out-Null
-    Invoke-WebRequest -Uri 'https://download.sysinternals.com/files/Handle.zip' -OutFile $zipPath -UseBasicParsing
-    Expand-Archive -Path $zipPath -DestinationPath $toolRoot -Force
+    Invoke-WebRequest -Uri 'https://download.sysinternals.com/files/Handle.zip' -OutFile $tempZipPath -UseBasicParsing
+    Expand-Archive -Path $tempZipPath -DestinationPath $toolRoot -Force
   } catch {
     return $null
+  } finally {
+    Remove-Item $tempZipPath -Force -ErrorAction SilentlyContinue
   }
 
   foreach ($path in $preferredPaths) {
-    if (Test-Path $path) { return $path }
+    if (Test-Path $path) {
+      $handlePath = $path
+      # Verify the downloaded executable to reduce supply chain risk before we trust and execute it.
+      $actualHash = (Get-FileHash -Path $handlePath -Algorithm SHA256).Hash
+      if ($actualHash -ne $expectedHash) {
+        Remove-Item $handlePath -Force -ErrorAction SilentlyContinue
+        throw "Downloaded Handle executable failed SHA256 verification. Update `$expectedHash with the real Sysinternals hash before enabling auto-download."
+      }
+
+      return $handlePath
+    }
   }
 
   return $null

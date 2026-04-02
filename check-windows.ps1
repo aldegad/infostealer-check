@@ -22,7 +22,7 @@ function Invoke-ModularRunner {
         throw "Modular runner not found: $modularRunner"
     }
 
-    $args = @(
+    $runnerArgs = @(
         '-NoProfile',
         '-ExecutionPolicy', 'Bypass',
         '-File', $modularRunner,
@@ -30,15 +30,15 @@ function Invoke-ModularRunner {
     )
 
     if ($Module) {
-        $args += @('-Module', $Module)
+        $runnerArgs += @('-Module', $Module)
     }
 
     if ($ReportDir) {
-        $args += @('-ReportDir', $ReportDir)
+        $runnerArgs += @('-ReportDir', $ReportDir)
     }
 
     Write-Host "[i] Running modular Windows checks via core/runner.ps1"
-    & powershell @args
+    & powershell @runnerArgs
     return $LASTEXITCODE
 }
 
