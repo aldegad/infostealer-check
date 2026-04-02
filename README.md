@@ -1,115 +1,105 @@
-# Infostealer Check
+# infostealer-check
 
-Lightweight scripts that scan your machine for signs of infostealer infection. No installation required — just download and run.
+Modular infostealer detection toolkit for macOS and Windows.
 
-## What It Does
-
-Checks **10 categories** of common infostealer indicators:
-
-| # | Check | macOS | Windows |
-|---|-------|-------|---------|
-| 1 | System info | hostname, OS, uptime | hostname, OS, last boot |
-| 2 | Suspicious processes | known stealer names + unusual paths | known stealer names + Temp folder exes |
-| 3 | Auto-start entries | LaunchAgents / LaunchDaemons | Registry Run keys |
-| 4 | Login items | Login Items list | Startup folder |
-| 5 | Recently installed apps | 7-day app changes + code signing | 7-day installs + signature verification |
-| 6 | Chrome extensions | high-risk permissions audit | high-risk permissions audit |
-| 7 | Network connections | suspicious ports + webhook comms | suspicious ports + webhook comms |
-| 8 | Chrome credential access | non-Chrome processes touching Login Data / Cookies DB | non-Chrome processes touching Login Data / Cookies DB |
-| 9 | Scheduled tasks | cron / periodic scripts | Scheduled Tasks + Defender threat history |
-| 10 | Privacy permissions | TCC database (Full Disk Access, Accessibility) | PowerShell command history |
-
-## What It Does NOT Do
-
-- **Does not access, decrypt, or transmit any passwords or credentials**
-- Does not read cookie values or session tokens
-- Does not send any data anywhere — everything stays local
-- Does not modify any files on your system
-- Does not require internet access
-
-This is purely an **anomaly detector**. It checks process names, file metadata, network connection endpoints, and permission configurations — never actual credential content.
+![Shell](https://img.shields.io/badge/shell-bash%205.x-green)
+![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows-blue)
+![License](https://img.shields.io/badge/license-MIT-yellow)
 
 ## Quick Start
 
-### macOS
+```bash
+# Full scan (macOS)
+bash core/runner.sh
+
+# Single module
+bash core/runner.sh --module T1555.003
+
+# JSON output
+bash core/runner.sh --format json
+
+# SARIF for IDE/GitHub
+bash core/runner.sh --format json | bash core/sarif-formatter.sh > report.sarif
+
+# Performance check
+bash core/perf-profile.sh --threshold 30
+```
+
+## Modules
+
+| Category | Module ID | Description | Platform |
+|----------|-----------|-------------|----------|
+| Credential Access | T1555.003 | Browser credential DB access | macOS |
+| Credential Access | T1552.001 | Credentials in files (.env, .aws) | macOS |
+| Credential Access | T1555.001 | Keychain abuse | macOS |
+| Execution | T1204.002 | Malicious file/process detection | macOS |
+| Execution | T1059.004 | Shell history analysis | macOS |
+| Execution | T1059.002 | AppleScript password prompts | macOS |
+| Execution | T1204.001 | ClickFix clipboard attacks | macOS |
+| Execution | T1574.002 | DLL sideloading (Lumma) | Windows |
+| Persistence | T1543.001 | LaunchAgent/Daemon | macOS |
+| Persistence | T1176 | Browser extensions audit | macOS |
+| Collection | T1005 | Crypto wallet/messenger data | macOS |
+| Collection | T1113 | Screen capture detection | macOS |
+| Collection | T1518.001 | Security software status | macOS |
+| Collection | T1083 | Filesystem timeline analysis | macOS |
+| Exfiltration | T1041 | C2 channel detection | macOS |
+| Exfiltration | T1071.001 | Telegram C2 abuse | macOS |
+| Exfiltration | T1071.004 | DNS/DGA analysis | macOS |
+| Exfiltration | T1102 | Dead Drop Resolver (ACR) | Windows |
+| Defense Evasion | T1070.004 | Self-deletion residue | macOS |
+| Defense Evasion | T1070.006 | Timestomping detection | macOS |
+| Defense Evasion | T1055 | Fileless execution indicators | macOS |
+
+## Architecture
+
+```
+core/
+  runner.sh             Module discovery and orchestration
+  output.sh             Shared output library (emit_finding/emit_clean/emit_info)
+  sarif-formatter.sh    SARIF v2.1.0 conversion
+  sigma-export.sh       Sigma-compatible event export
+  encrypt-report.sh     GPG report encryption
+  integrity-check.sh    SHA256 verification
+  perf-profile.sh       Performance profiling
+
+signatures/             IOC signatures (process names, network, file paths, YARA)
+
+config/
+  allowlist.json        False positive exclusions
+  i18n/                 Localization (ko, en, ja)
+```
+
+## Writing a Module
+
+1. Copy `core/module-template.sh` to `modules/`.
+2. Set `MODULE_ID`, `TECHNIQUE`, and `DESCRIPTION` at the top.
+3. Implement `run_checks()` with your detection logic.
+4. Use `emit_finding`, `emit_clean`, or `emit_info` from `core/output.sh` for results.
+5. Run `bash tests/run-tests.sh` to verify.
+
+## MITRE ATT&CK Coverage
+
+This toolkit maps to the following MITRE ATT&CK techniques:
+
+- **Credential Access**: T1555.003, T1552.001, T1555.001
+- **Execution**: T1204.002, T1059.004, T1059.002, T1204.001, T1574.002
+- **Persistence**: T1543.001, T1176
+- **Collection**: T1005, T1113, T1518.001, T1083
+- **Exfiltration**: T1041, T1071.001, T1071.004, T1102
+- **Defense Evasion**: T1070.004, T1070.006, T1055
+
+Technique details reference the [security-threat-intel](https://attack.mitre.org/) knowledge base.
+
+## Testing
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/aldegad/infostealer-check/main/check-mac.sh -o check-mac.sh
-chmod +x check-mac.sh
-./check-mac.sh
+bash tests/run-tests.sh
 ```
 
-### Windows (PowerShell as Administrator)
-
-```powershell
-Set-ExecutionPolicy Bypass -Scope Process -Force
-irm https://raw.githubusercontent.com/aldegad/infostealer-check/main/check-windows.ps1 -OutFile check-windows.ps1
-.\check-windows.ps1
-```
-
-## Output
-
-Both scripts create a timestamped folder on your Desktop:
-
-```
-~/Desktop/infostealer-check-20260402_114825/
-  report.txt                 # Full scan report
-  network_connections.txt    # All active network connections (macOS)
-  network_connections.csv    # All active network connections (Windows)
-  powershell_history.txt     # PowerShell history copy (Windows only)
-```
-
-Results are color-coded in the terminal:
-- `[OK]` Green — no issues found
-- `[!]` Yellow — worth reviewing
-- `[X]` Red — suspicious, investigate further
-
-## When to Use This
-
-- After a **phishing incident** or account compromise
-- When you suspect **malware infection** (unexpected ads, redirects, account takeovers)
-- As part of **incident response** for compromised Google Ads / OAuth tokens
-- Regular **security hygiene** checks on workstations
-
-## Known Infostealers Detected
-
-The scripts check for indicators associated with:
-
-| Family | Platform | Notes |
-|--------|----------|-------|
-| Amatera Stealer | Win/Mac | ACR Stealer successor, spread via fake Claude Code pages |
-| Atomic Stealer (AMOS) | Mac | Targets macOS keychain and browser data |
-| Poseidon Stealer | Mac | Distributed via Google Ads malvertising |
-| Banshee Stealer | Mac | Targets 100+ browser extensions |
-| RedLine | Win | Most prevalent Windows infostealer |
-| Raccoon | Win | Stealer-as-a-service |
-| Vidar | Win | Targets browsers, crypto wallets |
-| Lumma | Win | Active MaaS operation |
-| StealC | Win | Lightweight credential stealer |
-| Rhadamanthys | Win | Advanced evasion techniques |
-| MetaStealer | Win/Mac | Cross-platform stealer |
-
-## False Positives
-
-Some legitimate software may trigger warnings:
-
-- **Development tools** (Claude, Codex, Node.js) running from user directories
-- **Chrome Helper** processes accessing Chrome databases (expected behavior)
-- **Security software** (nProtect, etc.) registered as LaunchDaemons
-- **Discord/Slack** network connections (legitimate app usage)
-
-The report provides enough context to distinguish real threats from false positives.
-
-## Claude Code Skill
-
-This project can also be used as a Claude Code skill. Place the `SKILL.md` in your skills directory:
-
-```bash
-ln -s /path/to/infostealer-check ~/.claude/skills/infostealer-check
-```
-
-Then use `/infostealer-check` in Claude Code to run the appropriate script for your platform.
+Individual module tests live under `tests/` and follow the naming convention
+`test-<MODULE_ID>.sh`.
 
 ## License
 
-MIT
+MIT. See [LICENSE](LICENSE) for details.
