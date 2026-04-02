@@ -10,7 +10,7 @@ function Emit-Finding($Title, $Severity, $Evidence, $Remediation) {
 }
 
 function run_checks {
-    $findings = 0
+    $script:findings = 0
     $sysDll = "$env:SystemRoot\System32"
     $lummaNames = @("version.dll","winhttp.dll","dbghelp.dll")
 
@@ -66,7 +66,7 @@ function run_checks {
         }
     }
 
-    if ($findings -eq 0) {
+    if ($script:findings -eq 0) {
         $obj = [ordered]@{ technique_id=$MODULE_TECHNIQUE; title="No DLL sideloading indicators found"; severity="info"; evidence=""; remediation="" }
         if ($env:OUTPUT_FORMAT -eq "json") { Write-Output ($obj | ConvertTo-Json -Compress) }
         else { Write-Host "[OK] $MODULE_TECHNIQUE No DLL sideloading indicators found" }
