@@ -1,0 +1,29 @@
+[
+  {
+    "name": "trusted gigabyte task stays informational",
+    "taskName": "GCC",
+    "author": "",
+    "actions": [
+      "\"C:\\Program Files\\GIGABYTE\\Control Center\\GCC.exe\" -b"
+    ],
+    "expectedSeverity": "info"
+  },
+  {
+    "name": "encoded powershell from appdata is high confidence",
+    "taskName": "Updater",
+    "author": "Unknown",
+    "actions": [
+      "powershell.exe -ExecutionPolicy Bypass -enc SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAKQAg; __APPDATA__\\updater.ps1"
+    ],
+    "expectedSeverity": "bad"
+  },
+  {
+    "name": "missing executable is warning only",
+    "taskName": "MissingBinary",
+    "author": "Unknown",
+    "actions": [
+      "C:\\does-not-exist\\ghost.exe"
+    ],
+    "expectedSeverity": "warn"
+  }
+]

@@ -1,0 +1,34 @@
+[
+  {
+    "name": "trusted claude extension stays informational",
+    "extensionId": "fcoeoabgfenejglbffodgkkbkcdhcgfn",
+    "extensionName": "Claude",
+    "permissions": [
+      "nativeMessaging",
+      "<all_urls>"
+    ],
+    "updateUrl": "https://clients2.google.com/service/update2/crx",
+    "expectedSeverity": "info"
+  },
+  {
+    "name": "untrusted broad permission extension is high confidence",
+    "extensionId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "extensionName": "Coupon Helper",
+    "permissions": [
+      "nativeMessaging",
+      "<all_urls>"
+    ],
+    "updateUrl": "https://evil.example/crx",
+    "expectedSeverity": "bad"
+  },
+  {
+    "name": "store extension with one risky permission is warning",
+    "extensionId": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "extensionName": "Debug Helper",
+    "permissions": [
+      "nativeMessaging"
+    ],
+    "updateUrl": "https://clients2.google.com/service/update2/crx",
+    "expectedSeverity": "warn"
+  }
+]

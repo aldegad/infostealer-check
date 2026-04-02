@@ -1,0 +1,29 @@
+[
+  {
+    "name": "historical cmdline-only detection becomes warning",
+    "threatName": "Trojan:Win32/ClickFix.EEA!MTB",
+    "actionSuccess": true,
+    "resources": [
+      "CmdLine:_C:\\Users\\tester\\.codex\\codex.exe --apply-patch"
+    ],
+    "expectedSeverity": "warn"
+  },
+  {
+    "name": "residual path under temp remains high confidence",
+    "threatName": "Trojan:Win32/FakeArtifact",
+    "actionSuccess": true,
+    "resources": [
+      "File:__TEMP_FILE__"
+    ],
+    "expectedSeverity": "bad"
+  },
+  {
+    "name": "failed remediation remains high confidence",
+    "threatName": "Trojan:Win32/NeedsAction",
+    "actionSuccess": false,
+    "resources": [
+      "CmdLine:_powershell.exe -enc AAAA"
+    ],
+    "expectedSeverity": "bad"
+  }
+]

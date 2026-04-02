@@ -59,6 +59,18 @@ Both scripts create a timestamped folder on your Desktop:
   powershell_history.txt     # PowerShell history copy (Windows only)
 ```
 
+## Validation
+
+Windows validation guidance lives in `references/windows-attack-mapping.md`.
+
+Run the Windows regression tests with:
+
+```powershell
+.\tests\run-windows-tests.ps1
+```
+
+These tests use safe fixtures and local marker artifacts to validate persistence, extension, and Defender-residue heuristics without using real credential theft tooling.
+
 Results are color-coded in the terminal:
 - `[OK]` Green — no issues found
 - `[!]` Yellow — worth reviewing
