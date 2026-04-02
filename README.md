@@ -12,11 +12,20 @@ Modular infostealer detection toolkit for macOS and Windows.
 # Full scan (macOS)
 bash core/runner.sh
 
+# Full scan (Windows PowerShell)
+powershell -ExecutionPolicy Bypass -File core/runner.ps1
+
 # Single module
 bash core/runner.sh --module T1555.003
 
+# Single Windows module
+powershell -ExecutionPolicy Bypass -File core/runner.ps1 -Module T1555.003
+
 # JSON output
 bash core/runner.sh --format json
+
+# JSON output (Windows)
+powershell -ExecutionPolicy Bypass -File core/runner.ps1 -Format json
 
 # SARIF for IDE/GitHub
 bash core/runner.sh --format json | bash core/sarif-formatter.sh > report.sarif
@@ -55,8 +64,9 @@ bash core/perf-profile.sh --threshold 30
 
 ```
 core/
-  runner.sh             Module discovery and orchestration
-  output.sh             Shared output library (emit_finding/emit_clean/emit_info)
+  runner.sh             macOS module discovery and orchestration
+  runner.ps1            Windows module discovery and orchestration
+  output.sh             Shared macOS output library (emit_finding/emit_clean/emit_info)
   sarif-formatter.sh    SARIF v2.1.0 conversion
   sigma-export.sh       Sigma-compatible event export
   encrypt-report.sh     GPG report encryption
@@ -72,11 +82,12 @@ config/
 
 ## Writing a Module
 
-1. Copy `core/module-template.sh` to `modules/`.
+1. Copy `core/module-template.sh` to `modules/` for bash modules, or mirror an existing `*.ps1` module for Windows.
 2. Set `MODULE_ID`, `TECHNIQUE`, and `DESCRIPTION` at the top.
 3. Implement `run_checks()` with your detection logic.
-4. Use `emit_finding`, `emit_clean`, or `emit_info` from `core/output.sh` for results.
-5. Run `bash tests/run-tests.sh` to verify.
+4. For bash modules, use `emit_finding`, `emit_clean`, or `emit_info` from `core/output.sh`.
+5. For PowerShell modules, emit structured objects when `-Format json` is requested so `core/runner.ps1` can aggregate results.
+6. Run `bash tests/run-tests.sh` to verify the macOS/bash suite. Use `powershell -ExecutionPolicy Bypass -File core/runner.ps1 -Module <ID>` for Windows smoke checks.
 
 ## MITRE ATT&CK Coverage
 
