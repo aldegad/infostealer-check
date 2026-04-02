@@ -5,6 +5,12 @@
 #  사용법: chmod +x infostealer-check-mac.sh && ./infostealer-check-mac.sh
 # ============================================================
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+if [[ -f "$SCRIPT_DIR/core/runner.sh" ]]; then
+  echo "infostealer-check v2 detected. Running modular scanner..."
+  exec "$SCRIPT_DIR/core/runner.sh" --format text "$@"
+fi
+
 set -uo pipefail
 
 RED='\033[0;31m'
