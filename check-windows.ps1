@@ -8,6 +8,10 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+[Console]::InputEncoding = $utf8NoBom
+[Console]::OutputEncoding = $utf8NoBom
+$OutputEncoding = $utf8NoBom
 
 $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $legacyScript = Join-Path $scriptRoot 'check-windows-legacy.ps1'
