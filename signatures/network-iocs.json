@@ -1,0 +1,62 @@
+{
+  "webhook_patterns": [
+    {
+      "service": "discord",
+      "pattern": "discord.com/api/webhooks"
+    },
+    {
+      "service": "discord",
+      "pattern": "discordapp.com/api/webhooks"
+    },
+    {
+      "service": "telegram",
+      "pattern": "api.telegram.org/bot"
+    }
+  ],
+  "dead_drop_resolvers": [
+    {
+      "service": "steam",
+      "pattern": "steamcommunity.com/profiles/"
+    },
+    {
+      "service": "steam",
+      "pattern": "steamcommunity.com/id/"
+    },
+    {
+      "service": "google_forms",
+      "pattern": "docs.google.com/forms/"
+    },
+    {
+      "service": "google_forms",
+      "pattern": "forms.gle/"
+    }
+  ],
+  "doh_endpoints": [
+    {
+      "provider": "cloudflare",
+      "host": "cloudflare-dns.com"
+    },
+    {
+      "provider": "google",
+      "host": "dns.google"
+    },
+    {
+      "provider": "opendns",
+      "host": "doh.opendns.com"
+    }
+  ],
+  "common_c2_ports": [
+    443,
+    4444,
+    5555,
+    6666,
+    7777,
+    8080,
+    8443,
+    9001,
+    9999,
+    1337,
+    31337,
+    54321
+  ]
+}

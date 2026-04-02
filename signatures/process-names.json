@@ -1,0 +1,242 @@
+{
+  "atomic_stealer": [
+    {
+      "name": "AtomicStealer",
+      "family": "atomic_stealer",
+      "platform": "macos",
+      "mitre_technique": "T1204.002"
+    },
+    {
+      "name": "AMOS",
+      "family": "atomic_stealer",
+      "platform": "macos",
+      "mitre_technique": "T1204.002"
+    },
+    {
+      "name": "AtomicUpdater",
+      "family": "atomic_stealer",
+      "platform": "macos",
+      "mitre_technique": "T1204.002"
+    }
+  ],
+  "redline": [
+    {
+      "name": "RedLine",
+      "family": "redline",
+      "platform": "windows",
+      "mitre_technique": "T1204.002"
+    },
+    {
+      "name": "RedLineLoader",
+      "family": "redline",
+      "platform": "windows",
+      "mitre_technique": "T1204.002"
+    },
+    {
+      "name": "BrowserAssistant",
+      "family": "redline",
+      "platform": "windows",
+      "mitre_technique": "T1204.002"
+    }
+  ],
+  "lumma": [
+    {
+      "name": "Lumma",
+      "family": "lumma",
+      "platform": "windows",
+      "mitre_technique": "T1204.002"
+    },
+    {
+      "name": "LummaC2",
+      "family": "lumma",
+      "platform": "windows",
+      "mitre_technique": "T1204.002"
+    },
+    {
+      "name": "LummaStealer",
+      "family": "lumma",
+      "platform": "windows",
+      "mitre_technique": "T1204.002"
+    }
+  ],
+  "vidar": [
+    {
+      "name": "Vidar",
+      "family": "vidar",
+      "platform": "windows",
+      "mitre_technique": "T1204.002"
+    },
+    {
+      "name": "VidarLoader",
+      "family": "vidar",
+      "platform": "windows",
+      "mitre_technique": "T1204.002"
+    },
+    {
+      "name": "VidarClient",
+      "family": "vidar",
+      "platform": "windows",
+      "mitre_technique": "T1204.002"
+    }
+  ],
+  "raccoon": [
+    {
+      "name": "Raccoon",
+      "family": "raccoon",
+      "platform": "windows",
+      "mitre_technique": "T1204.002"
+    },
+    {
+      "name": "RaccoonStealer",
+      "family": "raccoon",
+      "platform": "windows",
+      "mitre_technique": "T1204.002"
+    },
+    {
+      "name": "RaccoonLoader",
+      "family": "raccoon",
+      "platform": "windows",
+      "mitre_technique": "T1204.002"
+    }
+  ],
+  "stealc": [
+    {
+      "name": "StealC",
+      "family": "stealc",
+      "platform": "windows",
+      "mitre_technique": "T1204.002"
+    },
+    {
+      "name": "StealCLoader",
+      "family": "stealc",
+      "platform": "windows",
+      "mitre_technique": "T1204.002"
+    },
+    {
+      "name": "StealcClient",
+      "family": "stealc",
+      "platform": "windows",
+      "mitre_technique": "T1204.002"
+    }
+  ],
+  "rhadamanthys": [
+    {
+      "name": "Rhadamanthys",
+      "family": "rhadamanthys",
+      "platform": "windows",
+      "mitre_technique": "T1204.002"
+    },
+    {
+      "name": "RhadLoader",
+      "family": "rhadamanthys",
+      "platform": "windows",
+      "mitre_technique": "T1204.002"
+    },
+    {
+      "name": "Rhada",
+      "family": "rhadamanthys",
+      "platform": "windows",
+      "mitre_technique": "T1204.002"
+    }
+  ],
+  "acr_stealer": [
+    {
+      "name": "ACR",
+      "family": "acr_stealer",
+      "platform": "windows",
+      "mitre_technique": "T1204.002"
+    },
+    {
+      "name": "ACRStealer",
+      "family": "acr_stealer",
+      "platform": "windows",
+      "mitre_technique": "T1204.002"
+    },
+    {
+      "name": "ACRLoader",
+      "family": "acr_stealer",
+      "platform": "windows",
+      "mitre_technique": "T1204.002"
+    }
+  ],
+  "poseidon": [
+    {
+      "name": "Poseidon",
+      "family": "poseidon",
+      "platform": "macos",
+      "mitre_technique": "T1204.002"
+    },
+    {
+      "name": "PoseidonStealer",
+      "family": "poseidon",
+      "platform": "macos",
+      "mitre_technique": "T1204.002"
+    },
+    {
+      "name": "PoseidonService",
+      "family": "poseidon",
+      "platform": "macos",
+      "mitre_technique": "T1204.002"
+    }
+  ],
+  "banshee": [
+    {
+      "name": "Banshee",
+      "family": "banshee",
+      "platform": "macos",
+      "mitre_technique": "T1204.002"
+    },
+    {
+      "name": "BansheeStealer",
+      "family": "banshee",
+      "platform": "macos",
+      "mitre_technique": "T1204.002"
+    },
+    {
+      "name": "SafariUpdater",
+      "family": "banshee",
+      "platform": "macos",
+      "mitre_technique": "T1204.002"
+    }
+  ],
+  "cuckoo": [
+    {
+      "name": "Cuckoo",
+      "family": "cuckoo",
+      "platform": "macos",
+      "mitre_technique": "T1204.002"
+    },
+    {
+      "name": "CuckooStealer",
+      "family": "cuckoo",
+      "platform": "macos",
+      "mitre_technique": "T1204.002"
+    },
+    {
+      "name": "MusicConverter",
+      "family": "cuckoo",
+      "platform": "macos",
+      "mitre_technique": "T1204.002"
+    }
+  ],
+  "metastealer": [
+    {
+      "name": "MetaStealer",
+      "family": "metastealer",
+      "platform": "macos",
+      "mitre_technique": "T1204.002"
+    },
+    {
+      "name": "MetaSync",
+      "family": "metastealer",
+      "platform": "macos",
+      "mitre_technique": "T1204.002"
+    },
+    {
+      "name": "MetaUpdater",
+      "family": "metastealer",
+      "platform": "macos",
+      "mitre_technique": "T1204.002"
+    }
+  ]
+}

@@ -1,0 +1,254 @@
+{
+  "macos": {
+    "browsers": {
+      "chrome": [
+        "~/Library/Application Support/Google/Chrome/Default/Login Data",
+        "~/Library/Application Support/Google/Chrome/Default/Cookies",
+        "~/Library/Application Support/Google/Chrome/Default/Web Data"
+      ],
+      "firefox": [
+        "~/Library/Application Support/Firefox/Profiles/*.default-release/logins.json",
+        "~/Library/Application Support/Firefox/Profiles/*.default-release/cookies.sqlite",
+        "~/Library/Application Support/Firefox/Profiles/*.default/logins.json",
+        "~/Library/Application Support/Firefox/Profiles/*.default/cookies.sqlite"
+      ],
+      "safari": [
+        "~/Library/Safari/History.db",
+        "~/Library/Safari/Cookies/Cookies.binarycookies",
+        "~/Library/Keychains/login.keychain-db"
+      ],
+      "edge": [
+        "~/Library/Application Support/Microsoft Edge/Default/Login Data",
+        "~/Library/Application Support/Microsoft Edge/Default/Cookies",
+        "~/Library/Application Support/Microsoft Edge/Default/Web Data"
+      ],
+      "brave": [
+        "~/Library/Application Support/BraveSoftware/Brave-Browser/Default/Login Data",
+        "~/Library/Application Support/BraveSoftware/Brave-Browser/Default/Cookies",
+        "~/Library/Application Support/BraveSoftware/Brave-Browser/Default/Web Data"
+      ],
+      "arc": [
+        "~/Library/Application Support/Arc/User Data/Default/Login Data",
+        "~/Library/Application Support/Arc/User Data/Default/Cookies",
+        "~/Library/Application Support/Arc/User Data/Default/Web Data"
+      ]
+    },
+    "crypto_wallets": {
+      "metamask": [
+        "~/Library/Application Support/Google/Chrome/Default/Local Extension Settings/nkbihfbeogaeaoehlefnkodbefgpgknn",
+        "~/Library/Application Support/BraveSoftware/Brave-Browser/Default/Local Extension Settings/nkbihfbeogaeaoehlefnkodbefgpgknn",
+        "~/Library/Application Support/Arc/User Data/Default/Local Extension Settings/nkbihfbeogaeaoehlefnkodbefgpgknn"
+      ],
+      "exodus": [
+        "~/Library/Application Support/Exodus",
+        "~/Library/Application Support/exodus.wallet"
+      ],
+      "phantom": [
+        "~/Library/Application Support/Google/Chrome/Default/Local Extension Settings/bfnaelmomeimhlpmgjnjophhpkkoljpa",
+        "~/Library/Application Support/BraveSoftware/Brave-Browser/Default/Local Extension Settings/bfnaelmomeimhlpmgjnjophhpkkoljpa",
+        "~/Library/Application Support/Arc/User Data/Default/Local Extension Settings/bfnaelmomeimhlpmgjnjophhpkkoljpa"
+      ]
+    },
+    "sensitive_files": {
+      "ssh_keys": [
+        "~/.ssh/id_*"
+      ],
+      "env_files": [
+        "~/.env",
+        "~/**/.env",
+        "~/**/.env.*"
+      ],
+      "aws_credentials": [
+        "~/.aws/credentials"
+      ],
+      "vpn_configs": {
+        "openvpn": [
+          "~/Library/Application Support/OpenVPN Connect/profiles/*.ovpn",
+          "~/.config/openvpn/*.ovpn"
+        ],
+        "wireguard": [
+          "~/Library/Application Support/WireGuard/configurations/*.conf",
+          "~/.config/wireguard/*.conf"
+        ]
+      }
+    },
+    "messaging_storage": {
+      "discord": [
+        "~/Library/Application Support/discord/Local Storage",
+        "~/Library/Application Support/discord/Local Storage/leveldb"
+      ],
+      "telegram": [
+        "~/Library/Application Support/Telegram Desktop/tdata"
+      ],
+      "slack": [
+        "~/Library/Application Support/Slack/Local Storage",
+        "~/Library/Application Support/Slack/Local Storage/leveldb"
+      ]
+    }
+  },
+  "windows": {
+    "browsers": {
+      "chrome": [
+        "%LOCALAPPDATA%/Google/Chrome/User Data/Default/Login Data",
+        "%LOCALAPPDATA%/Google/Chrome/User Data/Default/Cookies",
+        "%LOCALAPPDATA%/Google/Chrome/User Data/Default/Web Data"
+      ],
+      "firefox": [
+        "%APPDATA%/Mozilla/Firefox/Profiles/*.default-release/logins.json",
+        "%APPDATA%/Mozilla/Firefox/Profiles/*.default-release/cookies.sqlite",
+        "%APPDATA%/Mozilla/Firefox/Profiles/*.default/logins.json",
+        "%APPDATA%/Mozilla/Firefox/Profiles/*.default/cookies.sqlite"
+      ],
+      "safari": [],
+      "edge": [
+        "%LOCALAPPDATA%/Microsoft/Edge/User Data/Default/Login Data",
+        "%LOCALAPPDATA%/Microsoft/Edge/User Data/Default/Cookies",
+        "%LOCALAPPDATA%/Microsoft/Edge/User Data/Default/Web Data"
+      ],
+      "brave": [
+        "%LOCALAPPDATA%/BraveSoftware/Brave-Browser/User Data/Default/Login Data",
+        "%LOCALAPPDATA%/BraveSoftware/Brave-Browser/User Data/Default/Cookies",
+        "%LOCALAPPDATA%/BraveSoftware/Brave-Browser/User Data/Default/Web Data"
+      ],
+      "arc": [
+        "%LOCALAPPDATA%/Arc/User Data/Default/Login Data",
+        "%LOCALAPPDATA%/Arc/User Data/Default/Cookies",
+        "%LOCALAPPDATA%/Arc/User Data/Default/Web Data"
+      ]
+    },
+    "crypto_wallets": {
+      "metamask": [
+        "%LOCALAPPDATA%/Google/Chrome/User Data/Default/Local Extension Settings/nkbihfbeogaeaoehlefnkodbefgpgknn",
+        "%LOCALAPPDATA%/BraveSoftware/Brave-Browser/User Data/Default/Local Extension Settings/nkbihfbeogaeaoehlefnkodbefgpgknn",
+        "%LOCALAPPDATA%/Microsoft/Edge/User Data/Default/Local Extension Settings/nkbihfbeogaeaoehlefnkodbefgpgknn"
+      ],
+      "exodus": [
+        "%APPDATA%/Exodus",
+        "%LOCALAPPDATA%/exodus"
+      ],
+      "phantom": [
+        "%LOCALAPPDATA%/Google/Chrome/User Data/Default/Local Extension Settings/bfnaelmomeimhlpmgjnjophhpkkoljpa",
+        "%LOCALAPPDATA%/BraveSoftware/Brave-Browser/User Data/Default/Local Extension Settings/bfnaelmomeimhlpmgjnjophhpkkoljpa",
+        "%LOCALAPPDATA%/Microsoft/Edge/User Data/Default/Local Extension Settings/bfnaelmomeimhlpmgjnjophhpkkoljpa"
+      ]
+    },
+    "sensitive_files": {
+      "ssh_keys": [
+        "%USERPROFILE%/.ssh/id_*"
+      ],
+      "env_files": [
+        "%USERPROFILE%/.env",
+        "%USERPROFILE%/Desktop/**/.env",
+        "%USERPROFILE%/Documents/**/.env.*"
+      ],
+      "aws_credentials": [
+        "%USERPROFILE%/.aws/credentials"
+      ],
+      "vpn_configs": {
+        "openvpn": [
+          "%USERPROFILE%/OpenVPN/config/*.ovpn",
+          "%PROGRAMFILES%/OpenVPN/config/*.ovpn"
+        ],
+        "wireguard": [
+          "%PROGRAMFILES%/WireGuard/Data/configurations/*.conf",
+          "%LOCALAPPDATA%/WireGuard/configurations/*.conf"
+        ]
+      }
+    },
+    "messaging_storage": {
+      "discord": [
+        "%APPDATA%/discord/Local Storage",
+        "%APPDATA%/discord/Local Storage/leveldb"
+      ],
+      "telegram": [
+        "%APPDATA%/Telegram Desktop/tdata"
+      ],
+      "slack": [
+        "%APPDATA%/Slack/Local Storage",
+        "%APPDATA%/Slack/Local Storage/leveldb"
+      ]
+    }
+  },
+  "linux": {
+    "browsers": {
+      "chrome": [
+        "~/.config/google-chrome/Default/Login Data",
+        "~/.config/google-chrome/Default/Cookies",
+        "~/.config/google-chrome/Default/Web Data"
+      ],
+      "firefox": [
+        "~/.mozilla/firefox/*.default-release/logins.json",
+        "~/.mozilla/firefox/*.default-release/cookies.sqlite",
+        "~/.mozilla/firefox/*.default/logins.json",
+        "~/.mozilla/firefox/*.default/cookies.sqlite"
+      ],
+      "safari": [],
+      "edge": [
+        "~/.config/microsoft-edge/Default/Login Data",
+        "~/.config/microsoft-edge/Default/Cookies",
+        "~/.config/microsoft-edge/Default/Web Data"
+      ],
+      "brave": [
+        "~/.config/BraveSoftware/Brave-Browser/Default/Login Data",
+        "~/.config/BraveSoftware/Brave-Browser/Default/Cookies",
+        "~/.config/BraveSoftware/Brave-Browser/Default/Web Data"
+      ],
+      "arc": [
+        "~/.config/Arc/User Data/Default/Login Data",
+        "~/.config/Arc/User Data/Default/Cookies",
+        "~/.config/Arc/User Data/Default/Web Data"
+      ]
+    },
+    "crypto_wallets": {
+      "metamask": [
+        "~/.config/google-chrome/Default/Local Extension Settings/nkbihfbeogaeaoehlefnkodbefgpgknn",
+        "~/.config/BraveSoftware/Brave-Browser/Default/Local Extension Settings/nkbihfbeogaeaoehlefnkodbefgpgknn"
+      ],
+      "exodus": [
+        "~/.config/Exodus",
+        "~/.local/share/Exodus"
+      ],
+      "phantom": [
+        "~/.config/google-chrome/Default/Local Extension Settings/bfnaelmomeimhlpmgjnjophhpkkoljpa",
+        "~/.config/BraveSoftware/Brave-Browser/Default/Local Extension Settings/bfnaelmomeimhlpmgjnjophhpkkoljpa"
+      ]
+    },
+    "sensitive_files": {
+      "ssh_keys": [
+        "~/.ssh/id_*"
+      ],
+      "env_files": [
+        "~/.env",
+        "~/**/.env",
+        "~/**/.env.*"
+      ],
+      "aws_credentials": [
+        "~/.aws/credentials"
+      ],
+      "vpn_configs": {
+        "openvpn": [
+          "~/.config/openvpn/*.ovpn",
+          "/etc/openvpn/*.conf",
+          "/etc/openvpn/client/*.ovpn"
+        ],
+        "wireguard": [
+          "~/.config/wireguard/*.conf",
+          "/etc/wireguard/*.conf"
+        ]
+      }
+    },
+    "messaging_storage": {
+      "discord": [
+        "~/.config/discord/Local Storage",
+        "~/.config/discord/Local Storage/leveldb"
+      ],
+      "telegram": [
+        "~/.local/share/TelegramDesktop/tdata"
+      ],
+      "slack": [
+        "~/.config/Slack/Local Storage",
+        "~/.config/Slack/Local Storage/leveldb"
+      ]
+    }
+  }
+}
