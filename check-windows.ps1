@@ -25,6 +25,14 @@ function Bad($msg)  { Write-Host "[X] $msg" -ForegroundColor Red; Add-Content $r
 function Good($msg) { Write-Host "[OK] $msg" -ForegroundColor Green; Add-Content $reportFile "[OK] $msg" }
 function Info($msg) { Write-Host "[i] $msg" -ForegroundColor Cyan; Add-Content $reportFile "[i] $msg" }
 function Sep()      { Log "------------------------------------------------------------" }
+function Flag-Issue($severity, $msg) {
+    if ($severity -eq "High") {
+        Bad $msg
+    } else {
+        Warn $msg
+    }
+    $script:foundIssues++
+}
 
 $foundIssues = 0
 
@@ -156,8 +164,11 @@ foreach ($task in $tasks) {
     $actions = $task | Get-ScheduledTaskInfo 2>$null
     $taskActions = ($task.Actions | ForEach-Object { "$($_.Execute) $($_.Arguments)" }) -join "; "
 
-    if ($taskActions -match "powershell|cmd|wscript|cscript|mshta|curl|Temp|AppData") {
+    if ($taskActions -match "powershell|cmd|wscript|cscript|mshta|rundll32|regsvr32|curl") {
         Bad "의심 예약작업: $($task.TaskName) -> $taskActions"
+        $foundIssues++
+    } elseif ($taskActions -match "https?://|\\Temp\\|\\AppData\\Local\\Temp\\") {
+        Warn "주의 예약작업: $($task.TaskName) -> $taskActions"
         $foundIssues++
     } else {
         Info "  $($task.TaskName): $taskActions"
@@ -219,7 +230,9 @@ if (Test-Path $chromeExtDir) {
                     Warn "고위험 권한 확장: $extName"
                     Info "  권한: $perms"
                 }
-            } catch {}
+            } catch {
+                Flag-Issue "Medium" "manifest.json 파싱 실패: $($manifests.FullName)"
+            }
         }
     }
 } else {
