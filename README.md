@@ -13,19 +13,22 @@ Modular infostealer detection toolkit for macOS and Windows.
 bash core/runner.sh
 
 # Full scan (Windows PowerShell)
-powershell -ExecutionPolicy Bypass -File core/runner.ps1
+powershell -ExecutionPolicy Bypass -File check-windows.ps1
 
 # Single module
 bash core/runner.sh --module T1555.003
 
 # Single Windows module
-powershell -ExecutionPolicy Bypass -File core/runner.ps1 -Module T1555.003
+powershell -ExecutionPolicy Bypass -File check-windows.ps1 -Module T1555.003
 
 # JSON output
 bash core/runner.sh --format json
 
 # JSON output (Windows)
-powershell -ExecutionPolicy Bypass -File core/runner.ps1 -Format json
+powershell -ExecutionPolicy Bypass -File check-windows.ps1 -Format json
+
+# Legacy compatibility scan (Windows)
+powershell -ExecutionPolicy Bypass -File check-windows.ps1 -Mode legacy
 
 # SARIF for IDE/GitHub
 bash core/runner.sh --format json | bash core/sarif-formatter.sh > report.sarif
@@ -39,6 +42,7 @@ bash core/perf-profile.sh --threshold 30
 | Category | Module ID | Description | Platform |
 |----------|-----------|-------------|----------|
 | Credential Access | T1555.003 | Browser credential DB access | macOS |
+| Credential Access | T1555.003 | Browser credential DB lock/access detection | Windows |
 | Credential Access | T1552.001 | Credentials in files (.env, .aws) | macOS |
 | Credential Access | T1555.001 | Keychain abuse | macOS |
 | Execution | T1204.002 | Malicious file/process detection | macOS |
@@ -80,6 +84,8 @@ config/
   i18n/                 Localization (ko, en, ja)
 ```
 
+`check-windows.ps1` is the user-facing Windows entrypoint. It runs the modular pipeline by default and still supports `-Mode legacy` for the older compatibility scan.
+
 ## Writing a Module
 
 1. Copy `core/module-template.sh` to `modules/` for bash modules, or mirror an existing `*.ps1` module for Windows.
@@ -87,7 +93,7 @@ config/
 3. Implement `run_checks()` with your detection logic.
 4. For bash modules, use `emit_finding`, `emit_clean`, or `emit_info` from `core/output.sh`.
 5. For PowerShell modules, emit structured objects when `-Format json` is requested so `core/runner.ps1` can aggregate results.
-6. Run `bash tests/run-tests.sh` to verify the macOS/bash suite. Use `powershell -ExecutionPolicy Bypass -File core/runner.ps1 -Module <ID>` for Windows smoke checks.
+6. Run `bash tests/run-tests.sh` to verify the macOS/bash suite. Use `powershell -ExecutionPolicy Bypass -File tests/run-windows-tests.ps1` for Windows smoke checks.
 
 ## MITRE ATT&CK Coverage
 

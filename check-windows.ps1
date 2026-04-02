@@ -37,7 +37,9 @@ function Invoke-ModularRunner {
         $runnerArgs += @('-ReportDir', $ReportDir)
     }
 
-    Write-Host "[i] Running modular Windows checks via core/runner.ps1"
+    if ($Format -ne 'json') {
+        Write-Host "[i] Running modular Windows checks via core/runner.ps1"
+    }
     & powershell @runnerArgs
     return $LASTEXITCODE
 }
@@ -52,7 +54,9 @@ function Invoke-LegacyRunner {
         return 0
     }
 
-    Write-Host "[i] Running legacy Windows compatibility checks via check-windows-legacy.ps1"
+    if ($Format -ne 'json') {
+        Write-Host "[i] Running legacy Windows compatibility checks via check-windows-legacy.ps1"
+    }
     & powershell -NoProfile -ExecutionPolicy Bypass -File $legacyScript
     return $LASTEXITCODE
 }
@@ -74,8 +78,10 @@ switch ($Mode) {
             exit (Invoke-ModularRunner)
         }
 
-        Write-Host "[i] Auto mode selected. Using legacy checks for broad Windows coverage."
-        Write-Host "[i] Use -Mode modular to run the new module-based Windows pipeline."
-        exit (Invoke-LegacyRunner)
+        if ($Format -ne 'json') {
+            Write-Host "[i] Auto mode selected. Running the modular Windows pipeline by default."
+            Write-Host "[i] Use -Mode legacy if you need the older compatibility scan."
+        }
+        exit (Invoke-ModularRunner)
     }
 }
