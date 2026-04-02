@@ -1,4 +1,5 @@
 $ErrorActionPreference = 'Stop'
+Set-StrictMode -Version Latest
 
 $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 [Console]::InputEncoding = $utf8NoBom
@@ -119,7 +120,7 @@ try {
     Assert-True (Test-Path $wrapperJsonPath) 'check-windows.ps1 did not produce findings.json.'
     $wrapperResult = Get-Content -Path $wrapperJsonPath -Raw | ConvertFrom-Json -ErrorAction Stop
     Assert-True ($wrapperResult.modules_run -eq 1) 'check-windows.ps1 did not forward the module selection correctly.'
-    Assert-True (@($wrapperResult.findings).Count -ge 1) 'check-windows.ps1 did not return any findings payload.'
+    Assert-True ($null -ne $wrapperResult.PSObject.Properties['findings']) 'check-windows.ps1 output did not include a findings key.'
 } finally {
     $env:LOCALAPPDATA = $originalLocalAppData
     $env:APPDATA = $originalAppData

@@ -54,7 +54,9 @@ function Invoke-LegacyRunner {
         return 0
     }
 
-    Write-Host "[i] Running legacy Windows compatibility checks via check-windows-legacy.ps1"
+    if ($Format -ne 'json') {
+        Write-Host "[i] Running legacy Windows compatibility checks via check-windows-legacy.ps1"
+    }
     & powershell -NoProfile -ExecutionPolicy Bypass -File $legacyScript
     return $LASTEXITCODE
 }
@@ -76,8 +78,10 @@ switch ($Mode) {
             exit (Invoke-ModularRunner)
         }
 
-        Write-Host "[i] Auto mode selected. Running the modular Windows pipeline by default."
-        Write-Host "[i] Use -Mode legacy if you need the older compatibility scan."
+        if ($Format -ne 'json') {
+            Write-Host "[i] Auto mode selected. Running the modular Windows pipeline by default."
+            Write-Host "[i] Use -Mode legacy if you need the older compatibility scan."
+        }
         exit (Invoke-ModularRunner)
     }
 }
